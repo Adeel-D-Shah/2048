@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 public class GameManager : MonoBehaviour
@@ -40,38 +41,62 @@ public class GameManager : MonoBehaviour
     public void add_object(Vector2 pos)
     {
         GameObject tem = Instantiate(objectPrefab, pos, Quaternion.identity);
+        int x = UnityEngine.Random.Range(0, 10);
+        if (x == 0 || x == 1) { tem.GetComponent<box>().Value = 4; }
         gridObjects[(int)pos.x,(int)pos.y] = tem;
     }
 
 
     
+    public void Random_Spawn()
+    {
+        List<Vector2> empty_spots= new List<Vector2>();
 
+        
+            for (int i = 0; i < gridObjects.GetLength(0); i++)
+            {
+                for (int j = 0; j < gridObjects.GetLength(1); j++)
+                {
+                    if (gridObjects[i, j] == null)
+                    {
+                        empty_spots.Add(new Vector2(i,j));
+                    }
+                }
+            }
+
+            if(empty_spots.Count > 0)
+        {
+            int x = UnityEngine.Random.Range(0, gridObjects.GetLength(0));
+            add_object(empty_spots[x]);
+
+
+        }
+        else { Debug.Log("no empty spots"); }
+        
+    }
     private void Start()
     {
-       
-        add_object(new Vector2 (0,0));
-        add_object(new Vector2(0, 1));
-        add_object(new Vector2(2, 2));
-        add_object(new Vector2(0, 2));
-        add_object(new Vector2(1, 1));
-        add_object(new Vector2(2, 1));
-        add_object(new Vector2(3, 0));
-        add_object(new Vector2(3, 1));
-        add_object(new Vector2(3, 2));
-        add_object(new Vector2(1, 3));
+        Random_Spawn();
+        Random_Spawn();
+
     }
+
+    GameObject[,] tem = new GameObject[4, 4];
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.LeftArrow)) { GameObject[,] tem = gridObjects;  Move_Left(); if (tem == gridObjects) { Debug.Log("Nothing moved"); } }
+        if (Input.GetKeyDown(KeyCode.LeftArrow)) {Move_Left(); }
         if (Input.GetKeyDown(KeyCode.RightArrow)) { Move_Right(); }
         if (Input.GetKeyDown(KeyCode.UpArrow)) { Move_Up(); }
         if (Input.GetKeyDown(KeyCode.DownArrow)) { Move_Down(); }
+        if (Input.GetKeyDown(KeyCode.Space)) { Random_Spawn(); }
+        if (Input.GetKeyDown(KeyCode.R)) { SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex); }
 
     }
 
     public void Move_Right()
     {
+        System.Array.Copy(gridObjects, tem, gridObjects.Length);
         for (int i = 0; i < 4; i++)
         {
             for (int j = 3; j >= 0; j--)
@@ -94,10 +119,12 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
+        if (!AreArraysEqual(tem, gridObjects)) { Random_Spawn(); }
     }
 
     public void Move_Left()
     {
+        System.Array.Copy(gridObjects, tem, gridObjects.Length);
         for (int i = 0; i < 4; i++)
         {
             for (int j = 0; j < 4; j++)
@@ -121,10 +148,12 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
+        if (!AreArraysEqual(tem, gridObjects)) { Random_Spawn(); }
     }
 
     public void Move_Up()
     {
+        System.Array.Copy(gridObjects, tem, gridObjects.Length);
         for (int i = 3; i >= 0; i--)
         {
             for (int j = 3; j >= 0; j--)
@@ -149,9 +178,11 @@ public class GameManager : MonoBehaviour
 
             }
         }
+        if (!AreArraysEqual(tem, gridObjects)) { Random_Spawn(); }
     }
     public void Move_Down()
     {
+        System.Array.Copy(gridObjects, tem, gridObjects.Length);
         for (int i = 0; i < 4; i++)
         {
             for (int j = 0; j < 4; j++)
@@ -181,6 +212,7 @@ public class GameManager : MonoBehaviour
 
             }
         }
+        if (!AreArraysEqual(tem, gridObjects)) { Random_Spawn(); }
     }
     public int First_Same_Value_From_Left(int line, int value)
     {
@@ -251,7 +283,21 @@ public class GameManager : MonoBehaviour
         return 10;
     }
 
+    bool AreArraysEqual(GameObject[,] array1, GameObject[,] array2)
+    {
+        if (array1.GetLength(0) != array2.GetLength(0) || array1.GetLength(1) != array2.GetLength(1))
+            return false;
 
+        for (int i = 0; i < array1.GetLength(0); i++)
+        {
+            for (int j = 0; j < array1.GetLength(1); j++)
+            {
+                if (array1[i, j] != array2[i, j])
+                    return false;
+            }
+        }
+        return true;
+    }
 
 
 
