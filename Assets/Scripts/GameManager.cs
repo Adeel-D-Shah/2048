@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     public void Merge(GameObject gm1, GameObject gm2)
     {
         gridObjects[(int)gm1.transform.position.x, (int)gm1.transform.position.y] = null;
+        gm1.transform.position = gm2.transform.position;
         Destroy(gm1.gameObject);
         gm2.GetComponent<box>().Value *= 2;
     }
